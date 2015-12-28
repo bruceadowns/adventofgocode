@@ -10,7 +10,7 @@ import (
 )
 
 func die(msg string) {
-	log.Fatalf("invalid input [%s]", msg)
+	log.Fatalf("invalid input %s", msg)
 }
 
 func main() {

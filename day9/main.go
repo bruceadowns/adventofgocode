@@ -80,7 +80,7 @@ func main() {
 		var distance int
 		n, err := fmt.Sscanf(line, "%s to %s = %d", &from, &to, &distance)
 		if n != 3 || err != nil {
-			log.Fatalf("invalid input %s\n", line)
+			log.Fatalf("invalid input %s", line)
 		}
 
 		if _, ok := uniqueLocations[from]; !ok {

@@ -18,7 +18,7 @@ func main() {
 
 		unescapedLine, err := strconv.Unquote(line)
 		if err != nil {
-			log.Fatalf("invalid input %s\n", line)
+			log.Fatalf("invalid input %s", line)
 		}
 		totalUnescaped += len(unescapedLine)
 

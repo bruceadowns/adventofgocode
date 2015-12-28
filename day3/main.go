@@ -8,7 +8,7 @@ import (
 )
 
 func die(msg string) {
-	log.Fatalf("invalid input [%s]\n", msg)
+	log.Fatalf("invalid input %s", msg)
 }
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 				case 'v':
 					santaY--
 				default:
-					log.Fatalf("invalid input [%s]", line)
+					log.Fatalf("invalid input %s", line)
 				}
 
 				x, y = santaX, santaY
@@ -54,7 +54,7 @@ func main() {
 				case 'v':
 					roboY--
 				default:
-					log.Fatalf("invalid input [%s]", line)
+					log.Fatalf("invalid input %s", line)
 				}
 
 				x, y = roboX, roboY

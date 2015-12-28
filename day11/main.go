@@ -30,11 +30,11 @@ func main() {
 		// vzbxkghb
 		line := scanner.Text()
 		if len(line) != 8 {
-			log.Fatalf("invalid input %s\n", line)
+			log.Fatalf("invalid input %s", line)
 		}
 		for _, v := range line {
 			if v < 'a' || v > 'z' {
-				log.Fatalf("invalid input %s\n", line)
+				log.Fatalf("invalid input %s", line)
 			}
 		}
 

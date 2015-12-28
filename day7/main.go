@@ -21,7 +21,7 @@ const (
 var board map[string]uint16
 
 func die(msg string) {
-	log.Fatalf("invalid input %s\n", msg)
+	log.Fatalf("invalid input %s", msg)
 }
 
 func val(field string) (uint16, bool) {
