@@ -115,7 +115,7 @@ func main() {
 		all[idx] = &a
 		idx++
 	}
-	if len(all) != 500 {
+	if idx != 500 {
 		log.Fatal("invalid input")
 	}
 
