@@ -29,9 +29,6 @@ func main() {
 	for scanner.Scan() {
 		// vzbxkghb
 		line := scanner.Text()
-		if len(line) != 8 {
-			log.Fatalf("invalid input %s", line)
-		}
 		for _, v := range line {
 			if v < 'a' || v > 'z' {
 				log.Fatalf("invalid input %s", line)
@@ -50,7 +47,7 @@ func main() {
 
 		fmt.Printf("current password is %s\n", line)
 		for {
-			line = inc(line, 7)
+			line = inc(line, len(line)-1)
 			//fmt.Println(line)
 
 			// Passwords must include one increasing straight of at least three letters
