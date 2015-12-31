@@ -92,10 +92,10 @@ func (a *aunt) init(line string) {
 	}
 }
 
-func rem(n int, a []*aunt) []*aunt {
-	for i := 0; i < len(a); i++ {
-		if a[i].number == n {
-			return append(a[:i], a[i+1:]...)
+func rem(a []*aunt, n int) []*aunt {
+	for k, v := range a {
+		if v.number == n {
+			return append(a[:k], a[k+1:]...)
 		}
 	}
 
@@ -172,12 +172,12 @@ func main() {
 		}
 
 		if b {
-			trim = rem(v.number, trim)
+			trim = rem(trim, v.number)
 		}
 	}
 
 	if len(trim) != 1 {
 		log.Fatal("invalid condition")
 	}
-	fmt.Println(trim[0].number)
+	fmt.Printf("It is Aunt Sue number %d\n", trim[0].number)
 }
