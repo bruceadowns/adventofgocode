@@ -2,26 +2,28 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 )
 
 func print(grid [][]bool) {
+	var buf bytes.Buffer
 	for i := 1; i < len(grid)-1; i++ {
 		for j := 1; j < len(grid[i])-1; j++ {
 			switch grid[i][j] {
 			case true:
-				fmt.Printf("#")
+				buf.WriteRune('#')
 			case false:
-				fmt.Printf(".")
+				buf.WriteRune('.')
 			default:
 				log.Fatal("invalid condition")
 			}
 		}
-		fmt.Printf("\n")
+		buf.WriteRune('\n')
 	}
-	fmt.Println()
+	fmt.Printf("%s\n", buf.String())
 }
 
 func corners(grid [][]bool) {
