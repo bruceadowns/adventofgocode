@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+const (
+	totalScore int = 100
+)
+
 type ingredient struct {
 	name       string
 	capacity   int
@@ -32,6 +36,24 @@ func (ing *ingredient) init(line string) {
 	ing.name = ing.name[:len(ing.name)-1]
 }
 
+func permu(total, num int, in []int) (res [][]int) {
+	rem := total
+	for i := 0; i < len(in); i++ {
+		rem -= in[i]
+	}
+
+	if num == 1 {
+		return append(res, append(in, rem))
+	}
+
+	for i := 0; i < rem+1; i++ {
+		recurseRes := permu(total, num-1, append(in, i))
+		res = append(res, recurseRes...)
+	}
+
+	return
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -43,36 +65,31 @@ func main() {
 		allIngredients = append(allIngredients, &ing)
 	}
 
-	// lame permutations algorithm
-	var portionPermu [][]int
-	for i := 1; i < 100; i++ {
-		for j := 1; j < 100-i; j++ {
-			for k := 1; k < 100-i-j; k++ {
-				l := 100 - k - j - i
-				portionPermu = append(portionPermu, []int{i, j, k, l})
-			}
-		}
-	}
-
-	/*
-		// test
-		var portionPermu [][]int
-		for i := 1; i < 100; i++ {
-			j := 100 - i
-			portionPermu = append(portionPermu, []int{i, j})
-		}
-	*/
-
 	var maxValue int
 	var maxCombo []int
-	for _, v := range portionPermu {
+
+	/*
+		loop through portion permutations
+		[0 0 0 100]
+		[0 0 1 99]
+		[0 0 2 98]
+		[0 0 3 97]
+		...
+
+		for each portion permutation
+			for all ingredients calculate {capacity,durability,flavor,texture,calories}
+			determine max score
+	*/
+
+	for _, portions := range permu(totalScore, len(allIngredients), []int{}) {
+		//fmt.Println(portions)
 		var capacity, durability, flavor, texture, calories int
 		for i := 0; i < len(allIngredients); i++ {
-			capacity += allIngredients[i].capacity * v[i]
-			durability += allIngredients[i].durability * v[i]
-			flavor += allIngredients[i].flavor * v[i]
-			texture += allIngredients[i].texture * v[i]
-			calories += allIngredients[i].calories * v[i]
+			capacity += allIngredients[i].capacity * portions[i]
+			durability += allIngredients[i].durability * portions[i]
+			flavor += allIngredients[i].flavor * portions[i]
+			texture += allIngredients[i].texture * portions[i]
+			calories += allIngredients[i].calories * portions[i]
 		}
 		if capacity < 0 {
 			capacity = 0
@@ -93,14 +110,14 @@ func main() {
 			// part 1
 			if curValue > maxValue {
 				maxValue = curValue
-				maxCombo = v
+				maxCombo = portions
 			}
 		*/
 
 		// part 2
 		if curValue > maxValue && calories == 500 {
 			maxValue = curValue
-			maxCombo = v
+			maxCombo = portions
 		}
 	}
 
