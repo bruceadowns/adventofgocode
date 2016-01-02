@@ -13,38 +13,47 @@ func main() {
 	for scanner.Scan() {
 		// 33100000
 		line := scanner.Text()
-		presentsTarget, err := strconv.Atoi(line)
+		target, err := strconv.Atoi(line)
 		for err != nil {
 			log.Fatalf("invalid input %s", line)
 		}
-		fmt.Printf("presents target is %d\n", presentsTarget)
+		fmt.Printf("presents target is %d\n", target)
 
-		var house int
-		var presentsMax int
-		elfDelivery := make(map[int]int)
-		for {
-			house++
+		{
+			houses := make([]int, target/10)
+			for elf := 1; elf < len(houses); elf++ {
+				for house := elf; house < len(houses); house += elf {
+					houses[house] += elf * 10
+				}
+			}
 
-			var presents int
-			for elf := house; elf > 0; elf-- {
-				if house%elf == 0 {
-					elfDelivery[elf]++
-					if elfDelivery[elf] < 51 {
-						presents += 11 * elf
+			for k, v := range houses {
+				if v > target {
+					fmt.Printf("House %d got %d presents using first formula.\n", k, v)
+					break
+				}
+			}
+		}
+
+		{
+			houses := make([]int, target/10)
+			for elf := 1; elf < len(houses); elf++ {
+				var num int
+				for house := elf; house < len(houses); house += elf {
+					houses[house] += elf * 11
+					num++
+					if num > 50 {
+						break
 					}
 				}
 			}
 
-			if presents > presentsMax {
-				presentsMax = presents
-				fmt.Printf("House %d got %d presents.\n", house, presents)
-			}
-
-			if presents >= presentsTarget {
-				break
+			for k, v := range houses {
+				if v > target {
+					fmt.Printf("House %d got %d presents using second formula.\n", k, v)
+					break
+				}
 			}
 		}
-
-		fmt.Printf("House %d got %d presents.\n", house, presentsMax)
 	}
 }
