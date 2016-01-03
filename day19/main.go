@@ -6,15 +6,38 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 )
 
 type rep struct {
-	from, to string
-	re       *regexp.Regexp
+	from, to     string
+	reFrom, reTo *regexp.Regexp
 }
 
 func (r rep) String() string {
 	return fmt.Sprintf("%s=>%s", r.from, r.to)
+}
+
+type reps []rep
+
+func (r reps) Len() int {
+	return len(r)
+}
+
+func (r reps) Less(i, j int) bool {
+	if len(r[i].from) < len(r[j].from) {
+		return true
+	}
+
+	if len(r[i].to) < len(r[j].to) {
+		return true
+	}
+
+	return false
+}
+
+func (r reps) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
 }
 
 func (r *rep) init(line string) {
@@ -23,14 +46,16 @@ func (r *rep) init(line string) {
 	if n != 2 || err != nil {
 		log.Fatalf("invalid input")
 	}
-	r.re = regexp.MustCompile(r.from)
+
+	r.reFrom = regexp.MustCompile(r.from)
+	r.reTo = regexp.MustCompile(r.to)
 }
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	// get replacements and seeds
-	var reps, seeds []rep
+	var rs reps
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) < 1 {
@@ -39,14 +64,9 @@ func main() {
 
 		var r rep
 		r.init(line)
-		if r.from == "e" {
-			seeds = append(seeds, r)
-		} else {
-			reps = append(reps, r)
-		}
+		rs = append(rs, r)
 	}
-	//fmt.Println(reps)
-	//fmt.Println(seeds)
+	//fmt.Println(rs)
 
 	// get medicine molecule
 	var mole string
@@ -63,8 +83,8 @@ func main() {
 
 	// step 1
 	uniqueMoles := make(map[string]struct{})
-	for _, v := range reps {
-		idx := v.re.FindAllStringIndex(mole, -1)
+	for _, v := range rs {
+		idx := v.reFrom.FindAllStringIndex(mole, -1)
 
 		for _, w := range idx {
 			newmole := mole[:w[0]] + v.to + mole[w[1]:]
@@ -73,6 +93,26 @@ func main() {
 			}
 		}
 	}
-
 	fmt.Printf("number of unique molecules is %d\n", len(uniqueMoles))
+
+	// sort by len(from+to) descending
+	sort.Sort(sort.Reverse(rs))
+
+	var count int
+	newmole := mole
+	for newmole != "e" {
+		for _, v := range rs {
+			for {
+				indexes := v.reTo.FindStringIndex(newmole)
+				if indexes == nil {
+					break
+				}
+
+				newmole = newmole[:indexes[0]] + v.from + newmole[indexes[1]:]
+				//fmt.Println(newmole)
+				count++
+			}
+		}
+	}
+	fmt.Printf("fewest number of steps is %d\n", count)
 }
