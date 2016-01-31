@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -13,6 +13,54 @@ type sleigh struct {
 	passenger []int
 	left      []int
 	right     []int
+}
+
+type sleighs []sleigh
+
+func (s sleigh) balanced() bool {
+	var p, l, r int
+
+	for _, v := range s.passenger {
+		p += v
+	}
+
+	for _, v := range s.left {
+		l += v
+	}
+
+	for _, v := range s.right {
+		r += v
+	}
+
+	return p == l && l == r
+}
+
+func (s sleigh) qe() (res int) {
+	res = 1
+
+	for _, v := range s.passenger {
+		res *= v
+	}
+
+	return
+}
+
+func (s sleighs) Len() int {
+	return len(s)
+}
+
+func (s sleighs) Less(i, j int) bool {
+	if len(s[i].passenger) < len(s[j].passenger) {
+		return true
+	} else if len(s[i].passenger) == len(s[j].passenger) && s[i].qe() < s[j].qe() {
+		return true
+	}
+
+	return false
+}
+
+func (s sleighs) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
 
 func die(m string) {
@@ -93,34 +141,6 @@ func subtract(in1 []int, in2 ...[]int) (res []int) {
 	return
 }
 
-func (s sleigh) balanced() bool {
-	var p, l, r int
-
-	for _, v := range s.passenger {
-		p += v
-	}
-
-	for _, v := range s.left {
-		l += v
-	}
-
-	for _, v := range s.right {
-		r += v
-	}
-
-	return (p == l) && (l == r)
-}
-
-func (s sleigh) qe() (res int) {
-	res = 1
-
-	for _, v := range s.passenger {
-		res *= v
-	}
-
-	return
-}
-
 func main() {
 	/*
 	 generate three groups from input
@@ -133,69 +153,47 @@ func main() {
 	in := input()
 	fmt.Printf("in %d %v\n", len(in), in)
 
-	// find all combinations
-	var allSleighs []sleigh
+	// find all combinations for passenger
+	// 6,474,541 combinations for 29 items
+	var allSleighs sleighs
 	for i := 1; i < len(in)/3; i++ {
-		for _, groupCombo1 := range combo(in, i) {
-			group2 := subtract(in, groupCombo1)
-			for j := 1; j < len(group2)/3; j++ {
-				for _, groupCombo2 := range combo(group2, j) {
-					group3 := subtract(in, groupCombo1, groupCombo2)
-					allSleighs = append(allSleighs, sleigh{
-						passenger: groupCombo1,
-						left:      groupCombo2,
-						right:     group3,
-					})
-					//fmt.Printf("groupCombo1=%v groupCombo2=%v group3=%v\n", groupCombo1, groupCombo2, group3)
+		for _, v := range combo(in, i) {
+			//fmt.Println(v)
+			allSleighs = append(allSleighs, sleigh{
+				passenger: v,
+			})
+		}
+	}
+	fmt.Printf("number of sleigh combinations is %d\n", len(allSleighs))
+
+	// sort ascending via
+	// 1) passenger package count
+	// 2) qe
+	sort.Sort(allSleighs)
+	fmt.Printf("number of sorted sleigh combinations is %d\n", len(allSleighs))
+
+	// loop through all sleighs
+	// make combinations for left and right
+	// find first where sums are equal
+	var count int
+	EXIT_LOOP:
+	for _, s := range allSleighs {
+		left := subtract(in, s.passenger)
+		for i := 1; i < len(in)/3; i++ {
+			for _, leftCombo := range combo(left, i) {
+				s.left = leftCombo
+				s.right = subtract(in, s.passenger, leftCombo)
+
+				count++
+				if count%10000000 == 0 {
+					fmt.Printf("%d %v\n", count, s)
+				}
+
+				if s.balanced() {
+					fmt.Println(s)
+					break EXIT_LOOP
 				}
 			}
 		}
 	}
-	fmt.Printf("count of all combinations of sleighs %d\n", len(allSleighs))
-
-	// find all balanced
-	var allSleighsBalanced []sleigh
-	for _, v := range allSleighs {
-		if v.balanced() {
-			allSleighsBalanced = append(allSleighsBalanced, v)
-		}
-	}
-	fmt.Printf("balanced sleigh count %d\n", len(allSleighsBalanced))
-
-	if len(allSleighsBalanced) < 1 {
-		die("no sleighs are balanced")
-	}
-
-	// find fewest passenger packages
-	fewestPassengerPackages := math.MaxInt32
-	for _, v := range allSleighsBalanced {
-		if len(v.passenger) < fewestPassengerPackages {
-			fewestPassengerPackages = len(v.passenger)
-		}
-	}
-	fmt.Printf("fewest passenger packages value %d\n", fewestPassengerPackages)
-
-	// coalesce fewest passenger packages
-	var allFewestPassengerPackages []sleigh
-	for _, v := range allSleighsBalanced {
-		if len(v.passenger) == fewestPassengerPackages {
-			allFewestPassengerPackages = append(allFewestPassengerPackages, v)
-		}
-	}
-	fmt.Printf("fewest passenger packages sleigh count %d\n", len(allFewestPassengerPackages))
-
-	var targetSleighs []sleigh
-	smallestQuantumEntanglement := math.MaxInt32
-	for _, v := range allFewestPassengerPackages {
-		if v.qe() < smallestQuantumEntanglement {
-			smallestQuantumEntanglement = v.qe()
-			targetSleighs = append(targetSleighs, v)
-		}
-	}
-	if len(targetSleighs) != 1 {
-		die("multiple target sleighs")
-	}
-
-	fmt.Printf("smallest quantum entanglement value %d\n", smallestQuantumEntanglement)
-	fmt.Printf("smallest quantum entanglement sleigh %v\n", targetSleighs[0])
 }
