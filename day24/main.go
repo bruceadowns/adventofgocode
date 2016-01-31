@@ -124,17 +124,22 @@ func combo(iterable []int, r int) [][]int {
 }
 
 func subtract(in1 []int, in2 ...[]int) (res []int) {
-	res = make([]int, len(in1))
-	copy(res, in1)
+	res = []int{}
 
-	for _, v1 := range in2 {
-		for _, v2 := range v1 {
-			for k, v3 := range res {
-				if v2 == v3 {
-					res = append(res[:k], res[k+1:]...)
-					break
+	for _, v1 := range in1 {
+		found := false
+	OUTER:
+		for _, v2 := range in2 {
+			for _, v3 := range v2 {
+				if v1 == v3 {
+					found = true
+					break OUTER
 				}
 			}
+		}
+
+		if !found {
+			res = append(res, v1)
 		}
 	}
 
