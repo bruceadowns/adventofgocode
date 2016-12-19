@@ -2,66 +2,77 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
-func die(msg string) {
-	log.Fatalf("invalid input %s", msg)
+type button struct {
+	x, y int
+}
+
+func (b button) String() string {
+	//log.Printf("(%d,%d)", b.x, b.y)
+	if b.x == 0 && b.y == 0 {
+		return "1"
+	} else if b.x == 1 && b.y == 0 {
+		return "2"
+	} else if b.x == 2 && b.y == 0 {
+		return "3"
+	} else if b.x == 0 && b.y == 1 {
+		return "4"
+	} else if b.x == 1 && b.y == 1 {
+		return "5"
+	} else if b.x == 2 && b.y == 1 {
+		return "6"
+	} else if b.x == 0 && b.y == 2 {
+		return "7"
+	} else if b.x == 1 && b.y == 2 {
+		return "8"
+	} else if b.x == 2 && b.y == 2 {
+		return "9"
+	}
+
+	return "invalid logic"
+}
+
+func (b *button) move(direction rune) {
+	switch direction {
+	case 'R':
+		if b.x < 2 {
+			b.x++
+		}
+	case 'L':
+		if b.x > 0 {
+			b.x--
+		}
+	case 'U':
+		if b.y > 0 {
+			b.y--
+		}
+	case 'D':
+		if b.y < 2 {
+			b.y++
+		}
+	default:
+		log.Fatal("invalid logic")
+	}
 }
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	var totalPaper int
-	var totalRibbon int
+	current := button{1, 1}
+	var solution = make([]button, 0)
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		dimensions := strings.Split(line, "x")
-		if len(dimensions) != 3 {
-			die(line)
+		for _, direction := range line {
+			current.move(direction)
 		}
 
-		l, err := strconv.Atoi(dimensions[0])
-		if err != nil {
-			die(line)
-		}
-
-		w, err := strconv.Atoi(dimensions[1])
-		if err != nil {
-			die(line)
-		}
-
-		h, err := strconv.Atoi(dimensions[2])
-		if err != nil {
-			die(line)
-		}
-
-		surfaceArea := 2*l*w + 2*w*h + 2*h*l
-		minPaper := l * w
-		if w*h < minPaper {
-			minPaper = w * h
-		}
-		if h*l < minPaper {
-			minPaper = h * l
-		}
-		totalPaper += surfaceArea + minPaper
-
-		minPerimeter := l + l + w + w
-		if w+w+h+h < minPerimeter {
-			minPerimeter = w + w + h + h
-		}
-		if h+h+l+l < minPerimeter {
-			minPerimeter = h + h + l + l
-		}
-		totalRibbon += minPerimeter + l*w*h
+		solution = append(solution, current)
 	}
 
-	fmt.Printf("total paper %d\n", totalPaper)
-	fmt.Printf("total ribbon %d\n", totalRibbon)
+	log.Printf("code is: %s", solution)
 }
