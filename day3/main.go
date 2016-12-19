@@ -2,79 +2,43 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
-func die(msg string) {
-	log.Fatalf("invalid input %s", msg)
-}
-
 func main() {
+	var total, valid int
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
+		total++
 
-		m := make(map[int]map[int]bool)
-		var santaX, santaY, roboX, roboY int
-		m[0] = make(map[int]bool)
-		m[0][0] = true
-
-		for k, r := range line {
-			var x, y int
-
-			// change following for one santa
-			// if k == k {
-			if k%2 == 0 {
-				// santa move
-				switch r {
-				case '>':
-					santaX++
-				case '<':
-					santaX--
-				case '^':
-					santaY++
-				case 'v':
-					santaY--
-				default:
-					log.Fatalf("invalid input %s", line)
-				}
-
-				x, y = santaX, santaY
-			} else {
-				// robo move
-				switch r {
-				case '>':
-					roboX++
-				case '<':
-					roboX--
-				case '^':
-					roboY++
-				case 'v':
-					roboY--
-				default:
-					log.Fatalf("invalid input %s", line)
-				}
-
-				x, y = roboX, roboY
-			}
-
-			if m[x] == nil {
-				m[x] = make(map[int]bool)
-			}
-			m[x][y] = true
+		fields := strings.Fields(line)
+		if len(fields) != 3 {
+			log.Fatalf("invalid input: %s", line)
 		}
 
-		var count int
-		for _, mx := range m {
-			for _, my := range mx {
-				if my {
-					count++
-				}
-			}
+		var a, b, c int
+		var err error
+		a, err = strconv.Atoi(fields[0])
+		if err != nil {
+			log.Fatalf("invalid input: %s", line)
+		}
+		b, err = strconv.Atoi(fields[1])
+		if err != nil {
+			log.Fatalf("invalid input: %s", line)
+		}
+		c, err = strconv.Atoi(fields[2])
+		if err != nil {
+			log.Fatalf("invalid input: %s", line)
 		}
 
-		fmt.Printf("number of houses delivered to = %d\n", count)
+		if a+b > c && c+a > b && b+c > a {
+			valid++
+		}
 	}
+
+	log.Printf("total: %d valid: %d invalid: %d", total, valid, total-valid)
 }
