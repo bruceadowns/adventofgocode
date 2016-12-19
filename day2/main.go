@@ -12,24 +12,32 @@ type button struct {
 
 func (b button) String() string {
 	//log.Printf("(%d,%d)", b.x, b.y)
-	if b.x == 0 && b.y == 0 {
+	if b.x == 2 && b.y == 0 {
 		return "1"
-	} else if b.x == 1 && b.y == 0 {
-		return "2"
-	} else if b.x == 2 && b.y == 0 {
-		return "3"
-	} else if b.x == 0 && b.y == 1 {
-		return "4"
 	} else if b.x == 1 && b.y == 1 {
-		return "5"
+		return "2"
 	} else if b.x == 2 && b.y == 1 {
-		return "6"
+		return "3"
+	} else if b.x == 3 && b.y == 1 {
+		return "4"
 	} else if b.x == 0 && b.y == 2 {
-		return "7"
+		return "5"
 	} else if b.x == 1 && b.y == 2 {
-		return "8"
+		return "6"
 	} else if b.x == 2 && b.y == 2 {
+		return "7"
+	} else if b.x == 3 && b.y == 2 {
+		return "8"
+	} else if b.x == 4 && b.y == 2 {
 		return "9"
+	} else if b.x == 1 && b.y == 3 {
+		return "A"
+	} else if b.x == 2 && b.y == 3 {
+		return "B"
+	} else if b.x == 3 && b.y == 3 {
+		return "C"
+	} else if b.x == 2 && b.y == 4 {
+		return "D"
 	}
 
 	return "invalid logic"
@@ -38,20 +46,28 @@ func (b button) String() string {
 func (b *button) move(direction rune) {
 	switch direction {
 	case 'R':
-		if b.x < 2 {
+		if (b.y == 1 || b.y == 3) && b.x < 3 {
+			b.x++
+		} else if b.y == 2 && b.x < 4 {
 			b.x++
 		}
 	case 'L':
-		if b.x > 0 {
+		if (b.y == 1 || b.y == 3) && b.x > 1 {
+			b.x--
+		} else if b.y == 2 && b.x > 0 {
 			b.x--
 		}
-	case 'U':
-		if b.y > 0 {
-			b.y--
-		}
 	case 'D':
-		if b.y < 2 {
+		if (b.x == 1 || b.x == 3) && b.y < 3 {
 			b.y++
+		} else if b.x == 2 && b.y < 4 {
+			b.y++
+		}
+	case 'U':
+		if (b.x == 1 || b.x == 3) && b.y > 1 {
+			b.y--
+		} else if b.x == 2 && b.y > 0 {
+			b.y--
 		}
 	default:
 		log.Fatal("invalid logic")
@@ -61,7 +77,7 @@ func (b *button) move(direction rune) {
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	current := button{1, 1}
+	current := button{0, 2}
 	var solution = make([]button, 0)
 
 	for scanner.Scan() {
