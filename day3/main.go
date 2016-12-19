@@ -10,33 +10,45 @@ import (
 
 func main() {
 	var total, valid int
+	var rc [3][3]int
+
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
+
+		index := total % 3
 		total++
+		//log.Printf("total: %d index: %d", total, index)
 
 		fields := strings.Fields(line)
 		if len(fields) != 3 {
 			log.Fatalf("invalid input: %s", line)
 		}
 
-		var a, b, c int
 		var err error
-		a, err = strconv.Atoi(fields[0])
+		rc[0][index], err = strconv.Atoi(fields[0])
 		if err != nil {
 			log.Fatalf("invalid input: %s", line)
 		}
-		b, err = strconv.Atoi(fields[1])
+		rc[1][index], err = strconv.Atoi(fields[1])
 		if err != nil {
 			log.Fatalf("invalid input: %s", line)
 		}
-		c, err = strconv.Atoi(fields[2])
+		rc[2][index], err = strconv.Atoi(fields[2])
 		if err != nil {
 			log.Fatalf("invalid input: %s", line)
 		}
 
-		if a+b > c && c+a > b && b+c > a {
-			valid++
+		if index == 2 {
+			if rc[0][0]+rc[0][1] > rc[0][2] && rc[0][2]+rc[0][0] > rc[0][1] && rc[0][1]+rc[0][2] > rc[0][0] {
+				valid++
+			}
+			if rc[1][0]+rc[1][1] > rc[1][2] && rc[1][2]+rc[1][0] > rc[1][1] && rc[1][1]+rc[1][2] > rc[1][0] {
+				valid++
+			}
+			if rc[2][0]+rc[2][1] > rc[2][2] && rc[2][2]+rc[2][0] > rc[2][1] && rc[2][1]+rc[2][2] > rc[2][0] {
+				valid++
+			}
 		}
 	}
 
