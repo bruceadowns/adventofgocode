@@ -2,7 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -10,78 +14,28 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	var nice int
-
 	for scanner.Scan() {
 		line := scanner.Text()
+		log.Printf("door id: %s", line)
 
-		var vowel int
-		for _, r := range line {
-			switch r {
-			case 'a', 'e', 'i', 'o', 'u':
-				vowel++
+		password := bytes.Buffer{}
+		idx := 0
+		for ; ; idx++ {
+			hasher := md5.New()
+			hasher.Write([]byte(fmt.Sprintf("%s%d", line, idx)))
+			hash := hex.EncodeToString(hasher.Sum(nil))
+			//log.Printf("%d hash: %s %c", i, hash, hash[5])
+
+			if 0 == strings.Compare("00000", hash[:5]) {
+				password.WriteByte(hash[5])
+				//log.Printf("next char: %c", hash[5])
 			}
-		}
-		if vowel < 3 {
-			continue
-		}
 
-		var prevR rune
-		var twice bool
-		for _, r := range line {
-			if prevR == r {
-				twice = true
+			if password.Len() == 8 {
 				break
 			}
-			prevR = r
-		}
-		if !twice {
-			continue
 		}
 
-		if strings.Contains(line, "ab") {
-			continue
-		}
-		if strings.Contains(line, "cd") {
-			continue
-		}
-		if strings.Contains(line, "pq") {
-			continue
-		}
-		if strings.Contains(line, "xy") {
-			continue
-		}
-
-		/*
-		   part 2
-		   		var double bool
-		   	OUTER:
-		   		for i := 0; i < len(line)-2; i++ {
-		   			for j := i + 2; j < len(line)-1; j++ {
-		   				if line[i] == line[j] && line[i+1] == line[j+1] {
-		   					double = true
-		   					break OUTER
-		   				}
-		   			}
-		   		}
-		   		if !double {
-		   			continue
-		   		}
-
-		   		var repeats bool
-		   		for i := 0; i < len(line)-2; i++ {
-		   			if line[i] == line[i+2] {
-		   				repeats = true
-		   				break
-		   			}
-		   		}
-		   		if !repeats {
-		   			continue
-		   		}
-		*/
-
-		nice++
+		log.Printf("password: %s [%d]", password.String(), idx)
 	}
-
-	fmt.Printf("nice strings %d\n", nice)
 }
