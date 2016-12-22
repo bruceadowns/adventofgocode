@@ -2,97 +2,45 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"bytes"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
-func coord(s string) (x int, y int) {
-	sp := strings.Split(s, ",")
-	if len(sp) != 2 {
-		log.Fatalf("invalid coord %s", s)
-	}
-
-	var err error
-	x, err = strconv.Atoi(sp[0])
-	if err != nil {
-		log.Fatalf("invalid coord %s", s)
-	}
-	y, err = strconv.Atoi(sp[1])
-	if err != nil {
-		log.Fatalf("invalid coord %s", s)
-	}
-
-	return
-}
+var m = make(map[int]map[rune]int)
 
 func main() {
-	const size = 1000
-
-	// part 1
-	//var lights [size][size]bool
-
-	// part 2
-	var lights [size][size]int
-
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
+		//log.Printf("line: %s", line)
 
-		// turn on 0,0 through 999,999
-		// toggle 0,0 through 999,0
-		// turn off 499,499 through 500,500
-
-		fields := strings.Fields(line)
-		if len(fields) != 4 && len(fields) != 5 {
-			log.Fatalf("invalid input %s", line)
+		for k, v := range line {
+			if m[k] == nil {
+				m[k] = make(map[rune]int)
+			}
+			m[k][v] = m[k][v] + 1
 		}
 
-		if fields[0] == "turn" && fields[1] == "on" && fields[3] == "through" {
-			fromX, fromY := coord(fields[2])
-			toX, toY := coord(fields[4])
-
-			for x := fromX; x <= toX; x++ {
-				for y := fromY; y <= toY; y++ {
-					lights[x][y]++
-				}
-			}
-		} else if fields[0] == "turn" && fields[1] == "off" && fields[3] == "through" {
-			fromX, fromY := coord(fields[2])
-			toX, toY := coord(fields[4])
-
-			for x := fromX; x <= toX; x++ {
-				for y := fromY; y <= toY; y++ {
-					if lights[x][y] > 0 {
-						lights[x][y]--
-					}
-				}
-			}
-		} else if fields[0] == "toggle" && fields[2] == "through" {
-			fromX, fromY := coord(fields[1])
-			toX, toY := coord(fields[3])
-
-			for x := fromX; x <= toX; x++ {
-				for y := fromY; y <= toY; y++ {
-					lights[x][y] += 2
-				}
-			}
-		} else {
-			log.Fatalf("invalid input %s", line)
-		}
+		//log.Printf("m: %v", m)
 	}
 
-	var count int
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
-			count += lights[x][y]
+	message := bytes.Buffer{}
+	for i := 0; i < len(m); i++ {
+		//log.Printf("mk: %d - %v", i, m[i])
+
+		var r rune
+		var max int
+		for k, v := range m[i] {
+			if v > max {
+				r = k
+				max = v
+			}
 		}
+
+		message.WriteRune(r)
+		//log.Printf("mk: %d", r)
 	}
 
-	// part 1
-	//fmt.Printf("%d lights are lit\n", count)
-
-	fmt.Printf("%d light brightness\n", count)
+	log.Printf("message: %s", message.String())
 }
