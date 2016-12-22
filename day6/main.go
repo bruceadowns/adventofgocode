@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"log"
+	"math"
 	"os"
 )
 
@@ -30,9 +31,9 @@ func main() {
 		//log.Printf("mk: %d - %v", i, m[i])
 
 		var r rune
-		var max int
+		max := math.MaxInt32
 		for k, v := range m[i] {
-			if v > max {
+			if v < max {
 				r = k
 				max = v
 			}
