@@ -2,143 +2,105 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
 const (
-	wire   = "->"
-	not    = "NOT"
-	and    = "AND"
-	or     = "OR"
-	lshift = "LSHIFT"
-	rshift = "RSHIFT"
+	outside = iota
+	inside
 )
 
-var board map[string]uint16
-
-func die(msg string) {
-	log.Fatalf("invalid input %s", msg)
+type abba struct {
+	m [4]rune
 }
 
-func val(field string) (uint16, bool) {
-	if res, err := strconv.Atoi(field); err == nil {
-		return uint16(res), true
+func (a *abba) push(r rune) {
+	if a.m[0] == 0 {
+		a.m[0] = r
+	} else if a.m[1] == 0 {
+		a.m[1] = r
+	} else if a.m[2] == 0 {
+		a.m[2] = r
+	} else if a.m[3] == 0 {
+		a.m[3] = r
+	} else {
+		a.m[0] = a.m[1]
+		a.m[1] = a.m[2]
+		a.m[2] = a.m[3]
+		a.m[3] = r
 	}
+}
 
-	res, ok := board[field]
-	return res, ok
+func (a *abba) clear() {
+	a.m[0] = 0
+	a.m[1] = 0
+	a.m[2] = 0
+	a.m[3] = 0
+}
+
+func (a *abba) found() bool {
+	if a.m[0] != a.m[1] && a.m[0] == a.m[3] && a.m[1] == a.m[2] {
+		return true
+	}
+	return false
 }
 
 func main() {
-	var unresolved []string
+	var count int
+
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		unresolved = append(unresolved, scanner.Text())
-	}
+		line := scanner.Text()
+		//log.Printf("%s", line)
 
-	board = make(map[string]uint16)
+		var a abba
+		state := outside
+		var foundOutside, foundInside bool
 
-	for len(unresolved) > 0 {
-		working := unresolved
-		unresolved = nil
+		for _, v := range line {
+			switch v {
+			case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z':
+				a.push(v)
 
-		for _, line := range working {
-			fields := strings.Fields(line)
-			if len(fields) == 3 {
-				// 456 -> y
-				// lx -> a
-
-				if fields[1] != wire {
-					die(line)
-				}
-
-				if v, ok := val(fields[0]); ok {
-					board[fields[2]] = v
-				} else {
-					unresolved = append(unresolved, line)
-				}
-			} else if len(fields) == 4 {
-				// NOT x -> h
-				if fields[0] != not || fields[2] != wire {
-					die(line)
-				}
-
-				if v, ok := val(fields[1]); ok {
-					board[fields[3]] = ^v
-				} else {
-					unresolved = append(unresolved, line)
-				}
-			} else if len(fields) == 5 {
-				// x AND y -> d
-				// x OR y -> e
-				// x LSHIFT 2 -> f
-				// y RSHIFT 2 -> g
-				if fields[1] != and && fields[1] != or && fields[1] != lshift && fields[1] != rshift {
-					die(line)
-				}
-				if fields[3] != wire {
-					die(line)
-				}
-
-				switch fields[1] {
-				case and:
-					// x AND y -> d
-					if v, ok := val(fields[0]); ok {
-						if w, ok := val(fields[2]); ok {
-							board[fields[4]] = v & w
-						} else {
-							unresolved = append(unresolved, line)
-						}
-					} else {
-						unresolved = append(unresolved, line)
-					}
-				case or:
-					// x OR y -> e
-					if v, ok := val(fields[0]); ok {
-						if w, ok := val(fields[2]); ok {
-							board[fields[4]] = v | w
-						} else {
-							unresolved = append(unresolved, line)
-						}
-					} else {
-						unresolved = append(unresolved, line)
-					}
-				case lshift:
-					// x LSHIFT 2 -> f
-					shift, err := strconv.ParseUint(fields[2], 10, 8)
-					if err != nil {
-						die(line)
-					}
-
-					if v, ok := val(fields[0]); ok {
-						board[fields[4]] = v << shift
-					} else {
-						unresolved = append(unresolved, line)
-					}
-				case rshift:
-					// y RSHIFT 2 -> g
-					shift, err := strconv.ParseUint(fields[2], 10, 8)
-					if err != nil {
-						die(line)
-					}
-
-					if v, ok := val(fields[0]); ok {
-						board[fields[4]] = v >> shift
-					} else {
-						unresolved = append(unresolved, line)
+				if a.found() {
+					if state == outside {
+						foundOutside = true
+					} else if state == inside {
+						foundInside = true
 					}
 				}
+			case '[':
+				state = inside
+				a.clear()
+			case ']':
+				state = outside
+				a.clear()
+			default:
+				log.Fatal("invalid logic")
+			}
+
+			//log.Printf("%v", a)
+		}
+
+		if foundOutside {
+			//log.Print("found outside")
+			if foundInside {
+				//log.Print("found inside")
 			} else {
-				die(line)
+				count++
+				//log.Print("found outside and not inside")
+				//log.Print("not found inside")
+			}
+		} else {
+			//log.Print("not found outside")
+			if foundInside {
+				//log.Print("found inside")
+			} else {
+				//log.Print("not found inside")
 			}
 		}
 	}
 
-	for k, v := range board {
-		fmt.Println(k, v)
-	}
+	log.Printf("number of IPs that support TLS: %d", count)
 }
