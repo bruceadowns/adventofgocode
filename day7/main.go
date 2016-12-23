@@ -11,36 +11,36 @@ const (
 	inside
 )
 
-type abba struct {
-	m [4]rune
+type aba struct {
+	m [3]rune
 }
 
-func (a *abba) push(r rune) {
+func (a *aba) push(r rune) {
 	if a.m[0] == 0 {
 		a.m[0] = r
 	} else if a.m[1] == 0 {
 		a.m[1] = r
 	} else if a.m[2] == 0 {
 		a.m[2] = r
-	} else if a.m[3] == 0 {
-		a.m[3] = r
 	} else {
 		a.m[0] = a.m[1]
 		a.m[1] = a.m[2]
-		a.m[2] = a.m[3]
-		a.m[3] = r
+		a.m[2] = r
 	}
 }
 
-func (a *abba) clear() {
+func (a *aba) clear() {
 	a.m[0] = 0
 	a.m[1] = 0
 	a.m[2] = 0
-	a.m[3] = 0
 }
 
-func (a *abba) found() bool {
-	if a.m[0] != a.m[1] && a.m[0] == a.m[3] && a.m[1] == a.m[2] {
+func (a *aba) reverse() aba {
+	return aba{m: [3]rune{a.m[1], a.m[0], a.m[1]}}
+}
+
+func (a *aba) found() bool {
+	if a.m[0] != a.m[1] && a.m[0] == a.m[2] {
 		return true
 	}
 	return false
@@ -54,9 +54,9 @@ func main() {
 		line := scanner.Text()
 		//log.Printf("%s", line)
 
-		var a abba
+		var a aba
+		var outsideSequences, insideSequences []aba
 		state := outside
-		var foundOutside, foundInside bool
 
 		for _, v := range line {
 			switch v {
@@ -65,9 +65,9 @@ func main() {
 
 				if a.found() {
 					if state == outside {
-						foundOutside = true
+						outsideSequences = append(outsideSequences, a)
 					} else if state == inside {
-						foundInside = true
+						insideSequences = append(insideSequences, a)
 					}
 				}
 			case '[':
@@ -83,24 +83,22 @@ func main() {
 			//log.Printf("%v", a)
 		}
 
-		if foundOutside {
-			//log.Print("found outside")
-			if foundInside {
-				//log.Print("found inside")
-			} else {
-				count++
-				//log.Print("found outside and not inside")
-				//log.Print("not found inside")
-			}
-		} else {
-			//log.Print("not found outside")
-			if foundInside {
-				//log.Print("found inside")
-			} else {
-				//log.Print("not found inside")
+	out:
+		for _, o := range outsideSequences {
+			//log.Printf("o: %v", o)
+			r := o.reverse()
+			//log.Printf("r: %v", r)
+			for _, i := range insideSequences {
+				//log.Printf("i: %v", i)
+				if i == r {
+					count++
+					break out
+				}
 			}
 		}
+
+		//log.Print("")
 	}
 
-	log.Printf("number of IPs that support TLS: %d", count)
+	log.Printf("number of IPs that support SSL: %d", count)
 }
