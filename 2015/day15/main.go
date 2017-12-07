@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	totalScore int = 100
+	totalScore = 100
 )
 
 type ingredient struct {

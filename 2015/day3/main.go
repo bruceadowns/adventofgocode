@@ -7,10 +7,6 @@ import (
 	"os"
 )
 
-func die(msg string) {
-	log.Fatalf("invalid input %s", msg)
-}
-
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {

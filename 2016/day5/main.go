@@ -26,7 +26,7 @@ func main() {
 
 			if 0 == strings.Compare("00000", hash[:5]) {
 				offset := hash[5] - 48
-				if offset >= 0 && offset <= 7 {
+				if offset <= 7 {
 					if password[offset] == 0 {
 						password[offset] = hash[6]
 					}

@@ -181,7 +181,7 @@ func main() {
 	// make combinations for left and right
 	// find first where sums are equal
 	var count int
-	EXIT_LOOP:
+exit:
 	for _, s := range allSleighs {
 		left := subtract(in, s.passenger)
 		for i := 1; i < len(in)/3; i++ {
@@ -196,7 +196,7 @@ func main() {
 
 				if s.balanced() {
 					fmt.Println(s)
-					break EXIT_LOOP
+					break exit
 				}
 			}
 		}

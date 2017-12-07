@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func print(grid [][]bool) {
+func myprint(grid [][]bool) {
 	var buf bytes.Buffer
 	for i := 1; i < len(grid)-1; i++ {
 		for j := 1; j < len(grid[i])-1; j++ {
@@ -68,15 +68,15 @@ func main() {
 			}
 		}
 	}
-	//print(grid)
+	myprint(grid)
 
 	// part 2, turn on corners
 	corners(grid)
-	//print(grid)
+	//myprint(grid)
 
 	//const steps int = 4
 	//const steps int = 5
-	const steps int = 100
+	const steps = 100
 
 	for s := 0; s < steps; s++ {
 		// copy grid arrays
@@ -116,8 +116,9 @@ func main() {
 		corners(work)
 
 		grid = work
-		//print(grid)
+		//myprint(grid)
 	}
+	myprint(grid)
 
 	var total int
 	for _, i := range grid {
