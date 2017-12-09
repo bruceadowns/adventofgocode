@@ -14,53 +14,53 @@ const (
 	negator           = '!'
 )
 
+const (
+	def = iota
+	garbage
+	ignoreDefault
+	ignoreGarbage
+)
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		var groupLayer, groupSum int
-		var inGarbageBlock, negatorOn bool
 		var garbageCount int
 
+		state := def
 		for _, v := range line {
-			if negatorOn {
-				negatorOn = false
-				continue
-			}
-
-			switch v {
-			case beginGroupBlock:
-				if inGarbageBlock {
-					garbageCount++
-				} else {
+			switch state {
+			case def:
+				switch v {
+				case beginGroupBlock:
 					groupLayer++
-				}
-			case endGroupBlock:
-				if inGarbageBlock {
-					garbageCount++
-				} else {
+				case endGroupBlock:
 					groupSum += groupLayer
 					groupLayer--
+				case beginGarbageBlock:
+					state = garbage
+				case negator:
+					state = ignoreDefault
 				}
-			case beginGarbageBlock:
-				if inGarbageBlock {
+			case garbage:
+				switch v {
+				case endGarbageBlock:
+					state = def
+				case negator:
+					state = ignoreGarbage
+				default:
 					garbageCount++
-				} else {
-					inGarbageBlock = true
 				}
-			case endGarbageBlock:
-				inGarbageBlock = false
-			case negator:
-				negatorOn = true
-			default:
-				if inGarbageBlock {
-					garbageCount++
-				}
+			case ignoreDefault:
+				state = def
+			case ignoreGarbage:
+				state = garbage
 			}
 		}
-		if inGarbageBlock || negatorOn || groupLayer != 0 {
-			log.Fatal("invalid logic")
+		if state != def || groupLayer != 0 {
+			log.Fatalf("invalid logic: %d %d", state, groupLayer)
 		}
 
 		log.Printf("part1 group sum: %d", groupSum)
