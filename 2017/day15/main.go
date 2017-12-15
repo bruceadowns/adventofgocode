@@ -57,25 +57,31 @@ func part1() {
 }
 
 func part2() {
-	currA, currB := input(os.Stdin)
+	aSeed, bSeed := input(os.Stdin)
+
+	aCh := make(chan int, 64)
+	go func(curr int, ch chan int) {
+		for {
+			curr = curr * aFactor % remainder
+			if curr%4 == 0 {
+				ch <- curr
+			}
+		}
+	}(aSeed, aCh)
+
+	bCh := make(chan int, 64)
+	go func(curr int, ch chan int) {
+		for {
+			curr = curr * bFactor % remainder
+			if curr%8 == 0 {
+				ch <- curr
+			}
+		}
+	}(bSeed, bCh)
 
 	count := 0
 	for i := 0; i < iterCountPart2; i++ {
-		for {
-			currA = currA * aFactor % remainder
-			if currA%4 == 0 {
-				break
-			}
-		}
-
-		for {
-			currB = currB * bFactor % remainder
-			if currB%8 == 0 {
-				break
-			}
-		}
-
-		if currA&lsb16 == currB&lsb16 {
+		if <-aCh&lsb16 == <-bCh&lsb16 {
 			count++
 		}
 	}
