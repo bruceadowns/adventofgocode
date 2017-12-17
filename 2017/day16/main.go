@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	programSize    = 16
 	part2IterCount = 1000000000
 )
 
@@ -22,6 +23,23 @@ func (p programs) String() string {
 		sb.WriteRune(v)
 	}
 	return sb.String()
+}
+
+func (p programs) copy() (res programs) {
+	res = make(programs, programSize)
+	copy(res, p)
+
+	return
+}
+
+func (p programs) equals(q programs) bool {
+	for i := 0; i < len(p); i++ {
+		if p[i] != q[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 type danceMove func(programs) programs
@@ -114,36 +132,31 @@ func main() {
 		}
 	}
 
-	cycles := make(map[string]int)
-
-	ps := make(programs, 16)
-	for i := 0; i < len(ps); i++ {
-		ps[i] = 'a' + rune(i)
+	pgSeed := make(programs, programSize)
+	for i := 0; i < len(pgSeed); i++ {
+		pgSeed[i] = 'a' + rune(i)
 	}
-	cycles[fmt.Sprintf("%s", ps)] = 0
+
+	pgrams := pgSeed.copy()
+	cycles := make([]programs, 0)
+	cycles = append(cycles, pgrams)
 
 	for i := 1; i < part2IterCount; i++ {
 		for _, dMove := range dMoves {
-			ps = dMove(ps)
+			pgrams = dMove(pgrams)
 		}
 
 		if i == 1 {
-			log.Printf("part1 result: %s", ps)
+			log.Printf("part1 result: %s", pgrams)
 		}
 
-		if _, ok := cycles[fmt.Sprintf("%s", ps)]; ok {
+		if pgrams.equals(pgSeed) {
 			break
 		}
-		cycles[fmt.Sprintf("%s", ps)] = i
+
+		cycles = append(cycles, pgrams.copy())
 	}
 
 	mod := part2IterCount % len(cycles)
-	result := ""
-	for k, v := range cycles {
-		if v == mod {
-			result = k
-			break
-		}
-	}
-	log.Printf("part2 result: %s", result)
+	log.Printf("part2 result: %s", cycles[mod])
 }
