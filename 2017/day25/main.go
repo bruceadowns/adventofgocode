@@ -14,7 +14,7 @@ const (
 	left
 )
 
-type tape []bool
+type tape map[int]bool
 
 type machine struct {
 	t      tape
@@ -22,9 +22,7 @@ type machine struct {
 }
 
 func (m *machine) init() {
-	initSize := 1024
-	m.t = make([]bool, initSize)
-	m.cursor = initSize / 2
+	m.t = make(map[int]bool)
 }
 
 func (m machine) checksum() (res int) {
@@ -61,20 +59,6 @@ func genExecuteFn(onWrite bool, onDirection direction, onNext byte,
 				m.cursor--
 			}
 			res = offNext
-		}
-
-		if m.cursor < 0 || m.cursor > len(m.t)-1 {
-			size := len(m.t)
-			newSize := size * 2
-			newOffset := size / 2
-
-			newTape := make(tape, newSize)
-			for i := 0; i < size; i++ {
-				newTape[i+newOffset] = m.t[i]
-			}
-
-			m.t = newTape
-			m.cursor += newOffset
 		}
 
 		return
