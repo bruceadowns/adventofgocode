@@ -26,12 +26,10 @@ const (
 	flagged
 )
 
-type row []node
-type grid []row
 type coord struct {
 	x, y int
 }
-
+type grid map[coord]node
 type cluster struct {
 	g     grid
 	curr  coord
@@ -39,43 +37,8 @@ type cluster struct {
 	count int
 }
 
-func (g grid) fault(c coord, d direction) bool {
-	switch d {
-	case up:
-		return c.x == 0
-	case left:
-		return c.y == 0
-	case down:
-		return c.x == len(g)-1
-	case right:
-		return c.y == len(g)-1
-	}
-
-	return false
-}
-
-func (c *cluster) expand() {
-	ng := make(grid, len(c.g)*2)
-	for i := 0; i < len(ng); i++ {
-		ng[i] = make(row, len(c.g)*2)
-	}
-
-	offset := len(c.g) * 2 / 4
-	for x := 0; x < len(c.g); x++ {
-		for y := 0; y < len(c.g[x]); y++ {
-			ng[x+offset][y+offset] = c.g[x][y]
-		}
-	}
-	c.g = ng
-
-	c.curr.x += offset
-	c.curr.y += offset
-
-	return
-}
-
 func (c *cluster) turn1() {
-	switch c.g[c.curr.x][c.curr.y] {
+	switch c.g[c.curr] {
 	case clean:
 		// turn left
 		switch c.dir {
@@ -106,7 +69,7 @@ func (c *cluster) turn1() {
 }
 
 func (c *cluster) turn2() {
-	switch c.g[c.curr.x][c.curr.y] {
+	switch c.g[c.curr] {
 	case clean:
 		// turn left
 		switch c.dir {
@@ -150,38 +113,34 @@ func (c *cluster) turn2() {
 }
 
 func (c *cluster) toggle1() {
-	switch c.g[c.curr.x][c.curr.y] {
+	switch c.g[c.curr] {
 	case clean:
 		c.count++
-		c.g[c.curr.x][c.curr.y] = infected
+		c.g[c.curr] = infected
 	case infected:
-		c.g[c.curr.x][c.curr.y] = clean
+		delete(c.g, c.curr)
 	default:
 		log.Fatal("invalid input")
 	}
 }
 
 func (c *cluster) toggle2() {
-	switch c.g[c.curr.x][c.curr.y] {
+	switch c.g[c.curr] {
 	case clean:
-		c.g[c.curr.x][c.curr.y] = weakened
+		c.g[c.curr] = weakened
 	case weakened:
 		c.count++
-		c.g[c.curr.x][c.curr.y] = infected
+		c.g[c.curr] = infected
 	case infected:
-		c.g[c.curr.x][c.curr.y] = flagged
+		c.g[c.curr] = flagged
 	case flagged:
-		c.g[c.curr.x][c.curr.y] = clean
+		delete(c.g, c.curr)
 	default:
 		log.Fatal("invalid input")
 	}
 }
 
 func (c *cluster) move() {
-	if c.g.fault(c.curr, c.dir) {
-		c.expand()
-	}
-
 	switch c.dir {
 	case up:
 		c.curr.x--
@@ -195,30 +154,29 @@ func (c *cluster) move() {
 }
 
 func input(r io.Reader) (res cluster) {
-	res.g = make(grid, 0)
+	res.g = make(grid)
 
+	var x, y int
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		r := make(row, len(line))
-		for i := 0; i < len(line); i++ {
-			switch line[i] {
+		for y = 0; y < len(line); y++ {
+			switch line[y] {
 			case '#':
-				r[i] = infected
+				res.g[coord{x, y}] = infected
 			case '.':
-				r[i] = clean
 			default:
 				log.Fatal("invalid input")
 			}
 		}
 
-		res.g = append(res.g, r)
+		x++
 	}
 
+	res.curr.x = x / 2
+	res.curr.y = y / 2
 	res.dir = up
-	res.curr.x = len(res.g) / 2
-	res.curr.y = len(res.g) / 2
 
 	return
 }
@@ -230,7 +188,7 @@ func part1(c cluster, burstCount int) {
 		c.move()
 	}
 
-	log.Printf("part1 %d infections caused", c.count)
+	log.Printf("part1 %d infections caused after %d bursts", c.count, burstCount)
 }
 
 func part2(c cluster, burstCount int) {
@@ -240,7 +198,7 @@ func part2(c cluster, burstCount int) {
 		c.move()
 	}
 
-	log.Printf("part2 %d infections caused", c.count)
+	log.Printf("part2 %d infections caused after %d bursts", c.count, burstCount)
 }
 
 func main() {
