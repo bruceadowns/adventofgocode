@@ -35,7 +35,7 @@ func (m machine) checksum() (res int) {
 	return
 }
 
-type executeFn func(m *machine) byte
+type executeFn func(*machine) byte
 type stateTable map[byte]executeFn
 
 func genExecuteFn(onWrite bool, onDirection direction, onNext byte,

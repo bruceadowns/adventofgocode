@@ -42,9 +42,9 @@ func (p programs) equals(q programs) bool {
 	return true
 }
 
-type danceMove func(programs) programs
+type danceMoveFn func(programs) programs
 
-func genSpinMove(s string) danceMove {
+func genSpinMoveFn(s string) danceMoveFn {
 	n, err := strconv.Atoi(s)
 	if err != nil {
 		log.Fatalf("error in spin: %s", err)
@@ -55,7 +55,7 @@ func genSpinMove(s string) danceMove {
 	}
 }
 
-func genExchangeMove(s string) danceMove {
+func genExchangeMoveFn(s string) danceMoveFn {
 	var pos1, pos2 int
 	n, err := fmt.Sscanf(s, "%d/%d", &pos1, &pos2)
 	if err != nil {
@@ -71,7 +71,7 @@ func genExchangeMove(s string) danceMove {
 	}
 }
 
-func genPartnerMove(s string) danceMove {
+func genPartnerMoveFn(s string) danceMoveFn {
 	if len(s) != 3 {
 		log.Fatalf("invalid input in partner len %d", len(s))
 	}
@@ -114,7 +114,7 @@ func main() {
 		log.Fatalf("invalid input")
 	}
 
-	dMoves := make([]danceMove, 0)
+	dMoves := make([]danceMoveFn, 0)
 	for _, v := range inputMoves {
 		if len(v) < 1 {
 			log.Fatalf("invalid input")
@@ -122,11 +122,11 @@ func main() {
 
 		switch v[0] {
 		case 's':
-			dMoves = append(dMoves, genSpinMove(v[1:]))
+			dMoves = append(dMoves, genSpinMoveFn(v[1:]))
 		case 'x':
-			dMoves = append(dMoves, genExchangeMove(v[1:]))
+			dMoves = append(dMoves, genExchangeMoveFn(v[1:]))
 		case 'p':
-			dMoves = append(dMoves, genPartnerMove(v[1:]))
+			dMoves = append(dMoves, genPartnerMoveFn(v[1:]))
 		default:
 			log.Fatal("invalid input")
 		}
