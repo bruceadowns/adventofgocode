@@ -1,2 +1,0 @@
-AB=CA-DE
-FG=BE-HG
