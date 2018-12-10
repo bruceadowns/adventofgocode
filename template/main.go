@@ -2,30 +2,39 @@ package main
 
 import (
 	"bufio"
+	"io"
 	"log"
 	"os"
 )
 
-func part1() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		line := scanner.Text()
-		log.Print(line)
+func part1(in []string) (res int) {
+	for k, v := range in {
+		log.Printf("%d: %s", k, v)
 	}
+
+	return
 }
 
-func part2() {
+func part2(in []string) (res int) {
+	for k, v := range in {
+		log.Printf("%d: %s", k, v)
+	}
+
+	return
+}
+
+func in(r io.Reader) (res []string) {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
+		res = append(res, line)
+	}
+
+	return
 }
 
 func main() {
-	bPart1 := true
-	if len(os.Args) == 2 && os.Args[1] == "2" {
-		bPart1 = false
-	}
-
-	if bPart1 {
-		part1()
-	} else {
-		part2()
-	}
+	i := in(os.Stdin)
+	log.Printf("part1: %d", part1(i))
+	log.Printf("part2: %d", part2(i))
 }
