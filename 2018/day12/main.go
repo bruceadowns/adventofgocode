@@ -50,21 +50,19 @@ func in(r io.Reader) (res input) {
 			log.Fatal("invalid input")
 		}
 
-		var r rule
-		for k, v := range prev {
-			switch v {
-			case '#':
-				r.prev[k] = true
-			case '.':
-			default:
-				log.Fatal("invalid input")
-			}
-		}
-		if next[0] == '#' {
-			r.next = true
-		}
+		if next == "#" {
+			r := rule{next: true}
 
-		if r.next {
+			for k, v := range prev {
+				switch v {
+				case '#':
+					r.prev[k] = true
+				case '.':
+				default:
+					log.Fatal("invalid input")
+				}
+			}
+
 			res.rules = append(res.rules, r)
 		}
 	}
@@ -80,6 +78,7 @@ type pot struct {
 type tunnel []pot
 
 func grow(in input, gen int) (res int) {
+	// initialize tunnel with 4 pot padding
 	var t tunnel
 	for i := -4; i < 0; i++ {
 		t = append(t, pot{i, false})
@@ -100,12 +99,14 @@ func grow(in input, gen int) (res int) {
 	}
 
 	for g := 0; g < gen; g++ {
+		// working tunnel is off
 		wt := make(tunnel, 0)
 		for _, v := range t {
 			v.on = false
 			wt = append(wt, v)
 		}
 
+		// match and turn on
 		for i := 2; i < len(t)-2; i++ {
 			for _, v := range in.rules {
 				if t[i-2].on == v.prev[0] &&
@@ -113,12 +114,13 @@ func grow(in input, gen int) (res int) {
 					t[i].on == v.prev[2] &&
 					t[i+1].on == v.prev[3] &&
 					t[i+2].on == v.prev[4] {
-					wt[i].on = v.next
+					wt[i].on = true
 					break
 				}
 			}
 		}
 
+		// expand as necessary
 		if wt[4].on {
 			wt = append([]pot{
 				{wt[0].idx - 1, false}},
@@ -131,6 +133,7 @@ func grow(in input, gen int) (res int) {
 		t = wt
 	}
 
+	// count indexes that are on
 	for i := 0; i < len(t); i++ {
 		if t[i].on {
 			res += t[i].idx
