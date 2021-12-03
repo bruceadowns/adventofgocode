@@ -25,7 +25,7 @@ type position struct {
 	aim        int
 }
 
-func part1(in course) (res int) {
+func part1(in course) int {
 	var curr position
 	for _, dir := range in {
 		switch dir.baring {
@@ -41,7 +41,7 @@ func part1(in course) (res int) {
 	return curr.horizontal * curr.depth
 }
 
-func part2(in course) (res int) {
+func part2(in course) int {
 	var curr position
 	for _, dir := range in {
 		switch dir.baring {
