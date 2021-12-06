@@ -27,10 +27,6 @@ const (
 	leftup
 )
 
-func (c Coord) equal(that Coord) bool {
-	return c.x == that.x && c.y == that.y
-}
-
 func (c *Coord) inc(dir int) {
 	switch dir {
 	case right:
@@ -76,9 +72,8 @@ func straightLineCoords(start, end Coord) (res []Coord) {
 		return
 	}
 
-	for curr := start; !curr.equal(end); {
+	for curr := start; curr != end; curr.inc(dir) {
 		res = append(res, curr)
-		curr.inc(dir)
 	}
 	res = append(res, end)
 
@@ -115,9 +110,8 @@ func diagonalLineCoords(start, end Coord) (res []Coord) {
 		}
 	}
 
-	for curr := start; !curr.equal(end); {
+	for curr := start; curr != end; curr.inc(dir) {
 		res = append(res, curr)
-		curr.inc(dir)
 	}
 	res = append(res, end)
 
