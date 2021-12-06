@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func part1(in []string) (res int) {
+func Part1(in []string) (res int) {
 	for k, v := range in {
 		log.Printf("%d: %s", k, v)
 	}
@@ -15,7 +15,7 @@ func part1(in []string) (res int) {
 	return
 }
 
-func part2(in []string) (res int) {
+func Part2(in []string) (res int) {
 	for k, v := range in {
 		log.Printf("%d: %s", k, v)
 	}
@@ -23,7 +23,7 @@ func part2(in []string) (res int) {
 	return
 }
 
-func in(r io.Reader) (res []string) {
+func In(r io.Reader) (res []string) {
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -34,7 +34,7 @@ func in(r io.Reader) (res []string) {
 }
 
 func main() {
-	i := in(os.Stdin)
-	log.Printf("part1: %d", part1(i))
-	log.Printf("part2: %d", part2(i))
+	i := In(os.Stdin)
+	log.Printf("part1: %d", Part1(i))
+	log.Printf("part2: %d", Part2(i))
 }
