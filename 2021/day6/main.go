@@ -9,59 +9,56 @@ import (
 	"strings"
 )
 
-type Fish struct {
-	cycle int
-}
-
-func (f *Fish) dec() (res bool) {
-	f.cycle--
-	if f.cycle < 0 {
-		f.cycle = 6
-		res = true
-	}
-
-	return
-}
-
-func Part1(days int, pool []*Fish) (res int) {
-	poolRes := pool
+func Solution(days int, pool map[int]int) (res int) {
 	for i := 0; i < days; i++ {
-		poolNew := poolRes
-		for _, v := range poolRes {
-			if v.dec() {
-				poolNew = append(poolNew, &Fish{8})
+		var poolNew = make(map[int]int)
+		for k, v := range pool {
+			k--
+			if k < 0 {
+				poolNew[6] += v
+				poolNew[8] += v
+			} else {
+				poolNew[k] += v
 			}
 		}
-		poolRes = poolNew
+		pool = poolNew
 	}
 
-	return len(poolRes)
-}
-
-func Part2() (res int) {
+	for _, v := range pool {
+		res += v
+	}
 	return
 }
 
-func In(r io.Reader) (res []*Fish) {
+func In(r io.Reader) (res map[int]int) {
 	scanner := bufio.NewScanner(r)
 	if !scanner.Scan() {
 		log.Fatal("invalid input")
 	}
 
+	res = make(map[int]int)
 	line := scanner.Text()
 	for _, v := range strings.Split(line, ",") {
 		n, err := strconv.Atoi(v)
 		if err != nil {
 			log.Fatal(err)
 		}
-		res = append(res, &Fish{n})
+		res[n]++
 	}
 
 	return
 }
 
 func main() {
+	days := 80
+	if len(os.Args) == 2 {
+		var err error
+		days, err = strconv.Atoi(os.Args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	i := In(os.Stdin)
-	log.Printf("part1: %d", Part1(80, i))
-	log.Printf("part2: %d", Part2())
+	log.Printf("part1: %d", Solution(days, i))
 }
