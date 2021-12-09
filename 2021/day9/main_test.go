@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var in [][]int
+var in HeightMap
 
 func init() {
 	stdin := `2199943210
@@ -27,4 +27,10 @@ func Test_Part1(t *testing.T) {
 }
 
 func Test_Part2(t *testing.T) {
+	actual := Part2(in)
+	expected := 1134
+
+	if actual != expected {
+		t.Errorf("actual: %d expected: %d", actual, expected)
+	}
 }
