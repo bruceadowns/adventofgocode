@@ -8,25 +8,25 @@ import (
 	"sort"
 )
 
-type queue struct {
+type stack struct {
 	data []rune
 }
 
-func (q *queue) push(r rune) {
-	q.data = append(q.data, r)
+func (s *stack) push(r rune) {
+	s.data = append(s.data, r)
 }
 
-func (q *queue) pop() (res rune) {
-	if len(q.data) > 0 {
-		res = q.data[len(q.data)-1]
-		q.data = q.data[:len(q.data)-1]
+func (s *stack) pop() (res rune) {
+	if len(s.data) > 0 {
+		res = s.data[len(s.data)-1]
+		s.data = s.data[:len(s.data)-1]
 	}
 
 	return
 }
 
-func (q queue) empty() bool {
-	return len(q.data) == 0
+func (s stack) empty() bool {
+	return len(s.data) == 0
 }
 
 var pairs = map[rune]rune{
@@ -44,13 +44,13 @@ func Part1(in []string) (res int) {
 	var illegals []rune
 outer:
 	for _, v := range in {
-		var q queue
+		var s stack
 		for _, vv := range v {
 			switch vv {
 			case '(', '[', '{', '<':
-				q.push(vv)
+				s.push(vv)
 			case ')', ']', '}', '>':
-				if q.pop() != pairs[vv] {
+				if s.pop() != pairs[vv] {
 					illegals = append(illegals, vv)
 					continue outer
 				}
@@ -74,19 +74,19 @@ outer:
 }
 
 func Part2(in []string) (res int) {
-	var incompleteQueues []queue
+	var incompleteStacks []stack
 outer:
 	for _, v := range in {
-		var q queue
-		var fullQ queue
+		var s stack
+		var fullStack stack
 		for _, vv := range v {
-			fullQ.push(vv)
+			fullStack.push(vv)
 
 			switch vv {
 			case '(', '[', '{', '<':
-				q.push(vv)
+				s.push(vv)
 			case ')', ']', '}', '>':
-				if q.pop() != pairs[vv] {
+				if s.pop() != pairs[vv] {
 					continue outer
 				}
 			default:
@@ -94,27 +94,27 @@ outer:
 			}
 		}
 
-		incompleteQueues = append(incompleteQueues, fullQ)
+		incompleteStacks = append(incompleteStacks, fullStack)
 	}
 
-	var completionQueues []queue
-	for _, v := range incompleteQueues {
-		var reverseQueue queue
-		var completionQueue queue
+	var completionStacks []stack
+	for _, v := range incompleteStacks {
+		var reverseStack stack
+		var completionStack stack
 		for p := v.pop(); p != 0; p = v.pop() {
 			switch p {
 			case ')', ']', '}', '>':
-				reverseQueue.push(p)
+				reverseStack.push(p)
 			case '(', '[', '{', '<':
-				if reverseQueue.empty() {
-					completionQueue.push(pairs[p])
+				if reverseStack.empty() {
+					completionStack.push(pairs[p])
 				} else {
-					_ = reverseQueue.pop()
+					_ = reverseStack.pop()
 				}
 			}
 		}
 
-		completionQueues = append(completionQueues, completionQueue)
+		completionStacks = append(completionStacks, completionStack)
 	}
 
 	var points = map[rune]int{
@@ -124,7 +124,7 @@ outer:
 		'>': 4,
 	}
 	var completionScores []int
-	for _, v := range completionQueues {
+	for _, v := range completionStacks {
 		var completionScore int
 		for _, vv := range v.data {
 			completionScore *= 5
