@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var lines []string
+var lines Input
 
 func init() {
 	stdin := `test
