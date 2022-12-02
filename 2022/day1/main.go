@@ -23,12 +23,11 @@ func In(r io.Reader) (res Input) {
 			continue
 		}
 
-		var val int
-		var err error
-		if val, err = strconv.Atoi(line); err != nil {
+		if calories, err := strconv.Atoi(line); err == nil {
+			res[elf] += calories
+		} else {
 			log.Fatal(err)
 		}
-		res[elf] += val
 	}
 
 	return
