@@ -107,6 +107,8 @@ func In(r io.Reader) (res Input) {
 			}
 
 			res = append(res, round{playerMap1, playerMap2})
+		} else {
+			log.Fatal(err)
 		}
 	}
 
