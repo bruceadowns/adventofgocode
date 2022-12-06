@@ -5,16 +5,20 @@ import (
 	"testing"
 )
 
-var stdin = `vJrwpWtwJgWrhcsFMMfFFhFp
+var lines Input
+
+func init() {
+	stdin := `vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw
 `
+	lines = In(bytes.NewBufferString(stdin))
+}
 
 func Test_Part1(t *testing.T) {
-	lines := In(bytes.NewBufferString(stdin))
 	actual := Part1(lines)
 	expected := 157
 
@@ -24,7 +28,6 @@ func Test_Part1(t *testing.T) {
 }
 
 func Test_Part2(t *testing.T) {
-	lines := In2(bytes.NewBufferString(stdin))
 	actual := Part2(lines)
 	expected := 70
 

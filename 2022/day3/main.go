@@ -7,16 +7,37 @@ import (
 	"os"
 )
 
+type items map[uint8]struct{}
+
 type compartment struct {
-	items map[uint8]int
+	items items
 }
 
 type rucksack [2]compartment
 
-type Input []rucksack
+func (r rucksack) all() (res []uint8) {
+	for k := range r[0].items {
+		res = append(res, k)
+	}
+	for k := range r[1].items {
+		res = append(res, k)
+	}
 
-type group [3]compartment
-type Input2 []group
+	return
+}
+
+func (r rucksack) exists(i uint8) bool {
+	if _, exists := r[0].items[i]; exists {
+		return true
+	}
+	if _, exists := r[1].items[i]; exists {
+		return true
+	}
+
+	return false
+}
+
+type Input []rucksack
 
 func In(r io.Reader) (res Input) {
 	scanner := bufio.NewScanner(r)
@@ -24,41 +45,22 @@ func In(r io.Reader) (res Input) {
 		line := scanner.Text()
 
 		var comp1 compartment
-		comp1.items = make(map[uint8]int)
+		comp1.items = make(items)
 		for i := 0; i < len(line)/2; i++ {
-			comp1.items[line[i]]++
+			if _, exists := comp1.items[line[i]]; !exists {
+				comp1.items[line[i]] = struct{}{}
+			}
 		}
 
 		var comp2 compartment
-		comp2.items = make(map[uint8]int)
+		comp2.items = make(items)
 		for i := len(line) / 2; i < len(line); i++ {
-			comp2.items[line[i]]++
+			if _, exists := comp2.items[line[i]]; !exists {
+				comp2.items[line[i]] = struct{}{}
+			}
 		}
 
 		res = append(res, rucksack{comp1, comp2})
-	}
-
-	return
-}
-
-func In2(r io.Reader) (res Input2) {
-	scanner := bufio.NewScanner(r)
-
-outer:
-	for {
-		var group group
-		for i := 0; i < 3; i++ {
-			if !scanner.Scan() {
-				break outer
-			}
-			line := scanner.Text()
-
-			group[i].items = make(map[uint8]int)
-			for j := 0; j < len(line); j++ {
-				group[i].items[line[j]]++
-			}
-		}
-		res = append(res, group)
 	}
 
 	return
@@ -92,14 +94,12 @@ outer:
 	return
 }
 
-func Part2(in Input2) (res int) {
+func Part2(in Input) (res int) {
 outer:
-	for _, v := range in {
-		for k := range v[0].items {
-			_, exists1 := v[1].items[k]
-			_, exists2 := v[2].items[k]
-			if exists1 && exists2 {
-				res += mapPriority(k)
+	for i := 0; i < len(in); i += 3 {
+		for _, v := range in[i].all() {
+			if in[i+1].exists(v) && in[i+2].exists(v) {
+				res += mapPriority(v)
 				continue outer
 			}
 		}
@@ -109,9 +109,7 @@ outer:
 }
 
 func main() {
-	//i := In(os.Stdin)
-	//log.Printf("part1: %d", Part1(i))
-
-	i2 := In2(os.Stdin)
-	log.Printf("part2: %d", Part2(i2))
+	i := In(os.Stdin)
+	log.Printf("part1: %d", Part1(i))
+	log.Printf("part2: %d", Part2(i))
 }
