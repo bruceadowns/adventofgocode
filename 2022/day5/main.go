@@ -27,9 +27,7 @@ func (s *stack) push(i uint8) {
 }
 
 func (s *stack) pushStack(i []uint8) {
-	for j := len(i) - 1; j >= 0; j-- {
-		s.data = append(s.data, i[j])
-	}
+	s.data = append(s.data, i...)
 }
 
 func (s *stack) pop() (res uint8) {
@@ -40,10 +38,8 @@ func (s *stack) pop() (res uint8) {
 }
 
 func (s *stack) popStack(count int) (res []uint8) {
-	for i := 0; i < count; i++ {
-		res = append(res, s.data[len(s.data)-1])
-		s.data = s.data[:len(s.data)-1]
-	}
+	res = s.data[len(s.data)-count:]
+	s.data = s.data[:len(s.data)-count]
 
 	return
 }
@@ -135,7 +131,7 @@ func orderedTips(i map[int]*stack) (res string) {
 
 	var sb strings.Builder
 	for _, k := range stackKeys {
-		sb.WriteRune(rune(i[k].peek()))
+		sb.WriteByte(i[k].peek())
 	}
 	return sb.String()
 }
