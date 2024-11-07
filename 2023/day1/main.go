@@ -23,70 +23,18 @@ func Part1(in Input) (res int) {
 	for _, v := range in {
 		first := 10 * func(v string) int {
 			for i := 0; i < len(v); i++ {
-				if v[i] == 48 {
-					return 0
-				}
-				if v[i] == 49 {
-					return 1
-				}
-				if v[i] == 50 {
-					return 2
-				}
-				if v[i] == 51 {
-					return 3
-				}
-				if v[i] == 52 {
-					return 4
-				}
-				if v[i] == 53 {
-					return 5
-				}
-				if v[i] == 54 {
-					return 6
-				}
-				if v[i] == 55 {
-					return 7
-				}
-				if v[i] == 56 {
-					return 8
-				}
-				if v[i] == 57 {
-					return 9
+				switch v[i] {
+				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+					return int(v[i] - '0')
 				}
 			}
 			return -1
 		}(v)
 		second := func(v string) int {
 			for i := len(v) - 1; i > -1; i-- {
-				if v[i] == 48 {
-					return 0
-				}
-				if v[i] == 49 {
-					return 1
-				}
-				if v[i] == 50 {
-					return 2
-				}
-				if v[i] == 51 {
-					return 3
-				}
-				if v[i] == 52 {
-					return 4
-				}
-				if v[i] == 53 {
-					return 5
-				}
-				if v[i] == 54 {
-					return 6
-				}
-				if v[i] == 55 {
-					return 7
-				}
-				if v[i] == 56 {
-					return 8
-				}
-				if v[i] == 57 {
-					return 9
+				switch v[i] {
+				case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+					return int(v[i] - '0')
 				}
 			}
 			return -1
