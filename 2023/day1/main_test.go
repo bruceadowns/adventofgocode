@@ -7,10 +7,10 @@ import (
 
 func Test_Part1(t *testing.T) {
 	stdin := `1abc2
-	pqr3stu8vwx
-	a1b2c3d4e5f
-	treb7uchet
-	`
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet
+`
 	lines := In(bytes.NewBufferString(stdin))
 	actual := Part1(lines)
 	expected := 142
