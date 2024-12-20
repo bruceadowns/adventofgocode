@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"io"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -44,51 +43,53 @@ const (
 	DOWN
 )
 
+func isSafe(r report) bool {
+	prev := 0
+	direction := UNKNOWN
+	for _, v := range r {
+		if prev == 0 {
+			prev = v
+			continue
+		}
+		if direction == UNKNOWN {
+			if prev < v {
+				direction = UP
+			} else if prev > v {
+				direction = DOWN
+			} else {
+				return false
+			}
+		}
+
+		var diff int
+		switch direction {
+		case UP:
+			if prev >= v {
+				return false
+			}
+			diff = v - prev
+		case DOWN:
+			if prev <= v {
+				return false
+			}
+			diff = prev - v
+		default:
+			log.Fatal("logic error")
+		}
+
+		if diff < 1 || diff > 3 {
+			return false
+		}
+
+		prev = v
+	}
+
+	return true
+}
+
 func Part1(in Input) (res int) {
 	for _, v := range in {
-		if func() bool {
-			prev := 0
-			direction := UNKNOWN
-			for _, vv := range v {
-				if prev == 0 {
-					prev = vv
-					continue
-				}
-				if direction == UNKNOWN {
-					if prev < vv {
-						direction = UP
-					} else if prev > vv {
-						direction = DOWN
-					} else {
-						return false
-					}
-				}
-
-				switch direction {
-				case UP:
-					if prev > vv {
-						return false
-					}
-				case DOWN:
-					if prev < vv {
-						return false
-					}
-				case UNKNOWN:
-					log.Fatal("logic error")
-				default:
-					log.Fatal("logic error")
-				}
-
-				diff := math.Abs(float64(prev - vv))
-				if diff < 1 || diff > 3 {
-					return false
-				}
-
-				prev = vv
-			}
-
-			return true
-		}() {
+		if isSafe(v) {
 			res++
 		}
 	}
@@ -97,7 +98,23 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
-	return 4
+	for _, v := range in {
+		if isSafe(v) {
+			res++
+		} else {
+			for i := 0; i < len(v); i++ {
+				var vv []int
+				vv = append(vv, v[:i]...)
+				vv = append(vv, v[i+1:]...)
+				if isSafe(vv) {
+					res++
+					break
+				}
+			}
+		}
+	}
+
+	return
 }
 
 func main() {
