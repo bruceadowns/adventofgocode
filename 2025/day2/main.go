@@ -10,7 +10,12 @@ import (
 	"strings"
 )
 
-type Input []int
+type Item struct {
+	i int
+	s string
+}
+
+type Input []Item
 
 func In(r io.Reader) (res Input) {
 	scanner := bufio.NewScanner(r)
@@ -28,7 +33,7 @@ func In(r io.Reader) (res Input) {
 		}
 
 		for i := first; i <= last; i++ {
-			res = append(res, i)
+			res = append(res, Item{i, strconv.Itoa(i)})
 		}
 	}
 
@@ -37,11 +42,10 @@ func In(r io.Reader) (res Input) {
 
 func Part1(in Input) (res int) {
 	for _, v := range in {
-		s := strconv.Itoa(v)
-		first := s[0 : len(s)/2]
-		second := s[len(s)/2:]
+		first := v.s[0 : len(v.s)/2]
+		second := v.s[len(v.s)/2:]
 		if strings.EqualFold(first, second) {
-			res += v
+			res += v.i
 		}
 	}
 
@@ -49,6 +53,27 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
+v:
+	for _, v := range in {
+	i:
+		for i := 1; i < len(v.s)/2+1; i++ {
+			if len(v.s)%i != 0 {
+				continue
+			}
+
+			curr := v.s[0:i]
+			for j := i; j < len(v.s)-len(curr)+1; j += len(curr) {
+				comp := v.s[j : j+len(curr)]
+				if curr != comp {
+					continue i
+				}
+			}
+
+			res += v.i
+			continue v
+		}
+	}
+
 	return
 }
 
