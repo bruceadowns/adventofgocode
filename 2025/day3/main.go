@@ -44,6 +44,25 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
+	for _, v := range in {
+		var m int
+		var idx int
+		for i := 0; i < 12; i++ {
+			var l int
+			for j := idx; j < len(v)-12+i+1; j++ {
+				if l < v[j] {
+					l = v[j]
+					idx = j
+				}
+			}
+
+			m = m*10 + l
+			idx += 1
+		}
+
+		res += m
+	}
+
 	return
 }
 
