@@ -35,35 +35,38 @@ func In(r io.Reader) (res Input) {
 	return
 }
 
+func adjacent(in Input, c coord) (res int) {
+	if _, ok := in[coord{c.x - 1, c.y + 1}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x, c.y + 1}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x + 1, c.y + 1}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x - 1, c.y}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x + 1, c.y}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x - 1, c.y - 1}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x, c.y - 1}]; ok {
+		res++
+	}
+	if _, ok := in[coord{c.x + 1, c.y - 1}]; ok {
+		res++
+	}
+
+	return
+}
+
 func Part1(in Input) (res int) {
 	for k := range in {
-		var count int
-		if _, ok := in[coord{k.x - 1, k.y + 1}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x, k.y + 1}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x + 1, k.y + 1}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x - 1, k.y}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x + 1, k.y}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x - 1, k.y - 1}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x, k.y - 1}]; ok {
-			count++
-		}
-		if _, ok := in[coord{k.x + 1, k.y - 1}]; ok {
-			count++
-		}
-
-		if count < 4 {
+		if adjacent(in, k) < 4 {
 			res++
 		}
 	}
@@ -71,8 +74,34 @@ func Part1(in Input) (res int) {
 	return
 }
 
-func Part2(in Input) (res int) {
+func inCopy(in Input) (res Input) {
+	res = make(Input)
+	for k, v := range in {
+		res[k] = v
+	}
+
 	return
+}
+
+func Part2(in Input) (res int) {
+	nin := inCopy(in)
+
+	for {
+		tin := inCopy(nin)
+		for k := range nin {
+			if adjacent(nin, k) < 4 {
+				delete(tin, k)
+			}
+		}
+
+		if len(tin) == len(nin) {
+			break
+		}
+
+		nin = tin
+	}
+
+	return len(in) - len(nin)
 }
 
 func main() {

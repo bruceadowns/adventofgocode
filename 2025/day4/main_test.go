@@ -33,7 +33,7 @@ func Test_Part1(t *testing.T) {
 
 func Test_Part2(t *testing.T) {
 	actual := Part2(lines)
-	expected := 0
+	expected := 43
 
 	if actual != expected {
 		t.Errorf("actual: %d expected: %d", actual, expected)
