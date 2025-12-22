@@ -9,14 +9,24 @@ import (
 	"strconv"
 )
 
+type ingredientRange struct {
+	start, end int
+}
+
+func (ir ingredientRange) in(i int) (res bool) {
+	if i >= ir.start && i <= ir.end {
+		return true
+	}
+
+	return false
+}
+
 type Input struct {
-	fresh map[int]struct{}
+	fresh []ingredientRange
 	avail []int
 }
 
 func In(r io.Reader) (res Input) {
-	res.fresh = make(map[int]struct{})
-
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -32,10 +42,7 @@ func In(r io.Reader) (res Input) {
 		if num != 2 {
 			log.Fatal("invalid")
 		}
-		log.Printf("start %d end %d", start, end)
-		for i := start; i <= end; i++ {
-			res.fresh[i] = struct{}{}
-		}
+		res.fresh = append(res.fresh, ingredientRange{start, end})
 	}
 
 	for scanner.Scan() {
@@ -47,16 +54,16 @@ func In(r io.Reader) (res Input) {
 		}
 	}
 
-	log.Print(len(res.fresh))
-	log.Print(len(res.avail))
-
 	return
 }
 
 func Part1(in Input) (res int) {
 	for _, v := range in.avail {
-		if _, ok := in.fresh[v]; ok {
-			res++
+		for _, vv := range in.fresh {
+			if vv.in(v) {
+				res++
+				break
+			}
 		}
 	}
 
