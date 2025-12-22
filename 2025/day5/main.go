@@ -71,7 +71,14 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
-	return
+	uniq := make(map[int]struct{})
+	for _, v := range in.fresh {
+		for i := v.start; i <= v.end; i++ {
+			uniq[i] = struct{}{}
+		}
+	}
+
+	return len(uniq)
 }
 
 func main() {
