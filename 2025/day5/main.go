@@ -6,12 +6,14 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 )
 
 type ingredientRange struct {
 	start, end int
 }
+type ingredientRanges []*ingredientRange
 
 func (ir ingredientRange) in(i int) (res bool) {
 	if i >= ir.start && i <= ir.end {
@@ -21,8 +23,38 @@ func (ir ingredientRange) in(i int) (res bool) {
 	return false
 }
 
+func (ir ingredientRanges) consolidate() (res ingredientRanges) {
+	sort.Sort(ir)
+
+	curr := ir[0]
+	res = append(res, curr)
+
+	for i := 1; i < len(ir); i++ {
+		if ir[i].start <= curr.end {
+			curr.end = max(curr.end, ir[i].end)
+		} else {
+			curr = ir[i]
+			res = append(res, curr)
+		}
+	}
+
+	return
+}
+
+func (ir ingredientRanges) Len() int {
+	return len(ir)
+}
+
+func (ir ingredientRanges) Less(i, j int) bool {
+	return ir[i].start < ir[j].start
+}
+
+func (ir ingredientRanges) Swap(i, j int) {
+	ir[i], ir[j] = ir[j], ir[i]
+}
+
 type Input struct {
-	fresh []ingredientRange
+	fresh ingredientRanges
 	avail []int
 }
 
@@ -42,7 +74,7 @@ func In(r io.Reader) (res Input) {
 		if num != 2 {
 			log.Fatal("invalid")
 		}
-		res.fresh = append(res.fresh, ingredientRange{start, end})
+		res.fresh = append(res.fresh, &ingredientRange{start, end})
 	}
 
 	for scanner.Scan() {
@@ -71,14 +103,11 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
-	uniq := make(map[int]struct{})
-	for _, v := range in.fresh {
-		for i := v.start; i <= v.end; i++ {
-			uniq[i] = struct{}{}
-		}
+	for _, v := range in.fresh.consolidate() {
+		res += v.end - v.start + 1
 	}
 
-	return len(uniq)
+	return
 }
 
 func main() {
