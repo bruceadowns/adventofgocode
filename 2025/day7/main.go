@@ -79,13 +79,11 @@ func Part2(in Input) int {
 		for x := 0; x < len(in[y]); x++ {
 			var newWorlds manifolds
 			for _, v := range worlds {
-				switch in[y][x] {
-				case '.':
-					if _, ok := v[coord{x, y - 1}]; ok {
+				if _, ok := v[coord{x, y - 1}]; ok {
+					switch in[y][x] {
+					case '.':
 						v[coord{x, y}] = struct{}{}
-					}
-				case '^':
-					if _, ok := v[coord{x, y - 1}]; ok {
+					case '^':
 						newWorld := make(manifold)
 						for kk, vv := range v {
 							newWorld[kk] = vv
@@ -94,14 +92,15 @@ func Part2(in Input) int {
 						newWorlds = append(newWorlds, newWorld)
 
 						v[coord{x - 1, y}] = struct{}{}
+					default:
+						log.Fatal()
 					}
-				default:
-					log.Fatal()
 				}
 			}
 
-			worlds = append(worlds, newWorlds...)
-			log.Printf("worlds %d", len(worlds))
+			if newWorlds != nil {
+				worlds = append(worlds, newWorlds...)
+			}
 		}
 	}
 
