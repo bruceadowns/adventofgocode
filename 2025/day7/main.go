@@ -10,10 +10,7 @@ import (
 type Input []string
 
 type (
-	coord struct {
-		x, y int
-	}
-	manifold  map[coord]struct{}
+	manifold  map[int]struct{}
 	manifolds []manifold
 )
 
@@ -32,7 +29,7 @@ func Part1(in Input) (res int) {
 		switch in[0][x] {
 		case '.':
 		case 'S':
-			m[coord{x, 0}] = struct{}{}
+			m[x] = struct{}{}
 		default:
 			log.Fatal()
 		}
@@ -42,13 +39,11 @@ func Part1(in Input) (res int) {
 		for x := 0; x < len(in[y]); x++ {
 			switch in[y][x] {
 			case '.':
-				if _, ok := m[coord{x, y - 1}]; ok {
-					m[coord{x, y}] = struct{}{}
-				}
 			case '^':
-				if _, ok := m[coord{x, y - 1}]; ok {
-					m[coord{x - 1, y}] = struct{}{}
-					m[coord{x + 1, y}] = struct{}{}
+				if _, ok := m[x]; ok {
+					delete(m, x)
+					m[x-1] = struct{}{}
+					m[x+1] = struct{}{}
 					res++
 				}
 			default:
@@ -66,7 +61,7 @@ func Part2(in Input) int {
 		switch in[0][x] {
 		case '.':
 		case 'S':
-			firstWorld[coord{x, 0}] = struct{}{}
+			firstWorld[x] = struct{}{}
 		default:
 			log.Fatal()
 		}
@@ -79,19 +74,20 @@ func Part2(in Input) int {
 		for x := 0; x < len(in[y]); x++ {
 			var newWorlds manifolds
 			for _, v := range worlds {
-				if _, ok := v[coord{x, y - 1}]; ok {
+				if _, ok := v[x]; ok {
 					switch in[y][x] {
 					case '.':
-						v[coord{x, y}] = struct{}{}
 					case '^':
+						delete(v, x)
+
 						newWorld := make(manifold)
 						for kk, vv := range v {
 							newWorld[kk] = vv
 						}
-						newWorld[coord{x + 1, y}] = struct{}{}
+						newWorld[x+1] = struct{}{}
 						newWorlds = append(newWorlds, newWorld)
 
-						v[coord{x - 1, y}] = struct{}{}
+						v[x-1] = struct{}{}
 					default:
 						log.Fatal()
 					}
