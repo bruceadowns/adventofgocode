@@ -7,10 +7,15 @@ import (
 	"os"
 )
 
-type coord struct {
-	x, y int
-}
 type Input []string
+
+type (
+	coord struct {
+		x, y int
+	}
+	manifold  map[coord]struct{}
+	manifolds []manifold
+)
 
 func In(r io.Reader) (res Input) {
 	scanner := bufio.NewScanner(r)
@@ -22,12 +27,12 @@ func In(r io.Reader) (res Input) {
 }
 
 func Part1(in Input) (res int) {
-	beams := make(map[coord]struct{})
+	m := make(manifold)
 	for x := 0; x < len(in[0]); x++ {
 		switch in[0][x] {
 		case '.':
 		case 'S':
-			beams[coord{x, 0}] = struct{}{}
+			m[coord{x, 0}] = struct{}{}
 		default:
 			log.Fatal()
 		}
@@ -37,13 +42,13 @@ func Part1(in Input) (res int) {
 		for x := 0; x < len(in[y]); x++ {
 			switch in[y][x] {
 			case '.':
-				if _, ok := beams[coord{x, y - 1}]; ok {
-					beams[coord{x, y}] = struct{}{}
+				if _, ok := m[coord{x, y - 1}]; ok {
+					m[coord{x, y}] = struct{}{}
 				}
 			case '^':
-				if _, ok := beams[coord{x, y - 1}]; ok {
-					beams[coord{x - 1, y}] = struct{}{}
-					beams[coord{x + 1, y}] = struct{}{}
+				if _, ok := m[coord{x, y - 1}]; ok {
+					m[coord{x - 1, y}] = struct{}{}
+					m[coord{x + 1, y}] = struct{}{}
 					res++
 				}
 			default:
@@ -55,8 +60,52 @@ func Part1(in Input) (res int) {
 	return
 }
 
-func Part2(in Input) (res int) {
-	return
+func Part2(in Input) int {
+	firstWorld := make(manifold)
+	for x := 0; x < len(in[0]); x++ {
+		switch in[0][x] {
+		case '.':
+		case 'S':
+			firstWorld[coord{x, 0}] = struct{}{}
+		default:
+			log.Fatal()
+		}
+	}
+
+	var worlds manifolds
+	worlds = append(worlds, firstWorld)
+
+	for y := 1; y < len(in); y++ {
+		for x := 0; x < len(in[y]); x++ {
+			var newWorlds manifolds
+			for _, v := range worlds {
+				switch in[y][x] {
+				case '.':
+					if _, ok := v[coord{x, y - 1}]; ok {
+						v[coord{x, y}] = struct{}{}
+					}
+				case '^':
+					if _, ok := v[coord{x, y - 1}]; ok {
+						newWorld := make(manifold)
+						for kk, vv := range v {
+							newWorld[kk] = vv
+						}
+						newWorld[coord{x + 1, y}] = struct{}{}
+						newWorlds = append(newWorlds, newWorld)
+
+						v[coord{x - 1, y}] = struct{}{}
+					}
+				default:
+					log.Fatal()
+				}
+			}
+
+			worlds = append(worlds, newWorlds...)
+			log.Printf("worlds %d", len(worlds))
+		}
+	}
+
+	return len(worlds)
 }
 
 func main() {
