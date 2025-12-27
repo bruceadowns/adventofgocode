@@ -9,10 +9,7 @@ import (
 
 type Input []string
 
-type (
-	manifold  map[int]struct{}
-	manifolds []manifold
-)
+type manifold map[int]int
 
 func In(r io.Reader) (res Input) {
 	scanner := bufio.NewScanner(r)
@@ -29,7 +26,7 @@ func Part1(in Input) (res int) {
 		switch in[0][x] {
 		case '.':
 		case 'S':
-			m[x] = struct{}{}
+			m[x] = 1
 		default:
 			log.Fatal()
 		}
@@ -41,9 +38,9 @@ func Part1(in Input) (res int) {
 			case '.':
 			case '^':
 				if _, ok := m[x]; ok {
+					m[x-1] = 1
+					m[x+1] = 1
 					delete(m, x)
-					m[x-1] = struct{}{}
-					m[x+1] = struct{}{}
 					res++
 				}
 			default:
@@ -55,52 +52,36 @@ func Part1(in Input) (res int) {
 	return
 }
 
-func Part2(in Input) int {
-	firstWorld := make(manifold)
+func Part2(in Input) (res int) {
+	m := make(manifold)
 	for x := 0; x < len(in[0]); x++ {
 		switch in[0][x] {
 		case '.':
 		case 'S':
-			firstWorld[x] = struct{}{}
+			m[x] = 1
 		default:
 			log.Fatal()
 		}
 	}
 
-	var worlds manifolds
-	worlds = append(worlds, firstWorld)
-
 	for y := 1; y < len(in); y++ {
 		for x := 0; x < len(in[y]); x++ {
-			var newWorlds manifolds
-			for _, v := range worlds {
-				if _, ok := v[x]; ok {
-					switch in[y][x] {
-					case '.':
-					case '^':
-						delete(v, x)
-
-						newWorld := make(manifold)
-						for kk, vv := range v {
-							newWorld[kk] = vv
-						}
-						newWorld[x+1] = struct{}{}
-						newWorlds = append(newWorlds, newWorld)
-
-						v[x-1] = struct{}{}
-					default:
-						log.Fatal()
-					}
-				}
-			}
-
-			if newWorlds != nil {
-				worlds = append(worlds, newWorlds...)
+			switch in[y][x] {
+			case '.':
+			case '^':
+				m[x-1] += m[x]
+				m[x+1] += m[x]
+				delete(m, x)
+			default:
+				log.Fatal()
 			}
 		}
 	}
 
-	return len(worlds)
+	for _, v := range m {
+		res += v
+	}
+	return
 }
 
 func main() {
