@@ -113,6 +113,33 @@ func Part1(in Input) (res int) {
 }
 
 func Part2(in Input) (res int) {
+	n := len(in)
+	pairs := make([]pair, 0, n*(n-1)/2)
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			dx := in[i].x - in[j].x
+			dy := in[i].y - in[j].y
+			dz := in[i].z - in[j].z
+			pairs = append(pairs, pair{i, j, dx*dx + dy*dy + dz*dz})
+		}
+	}
+	sort.Slice(pairs, func(a, b int) bool {
+		return pairs[a].dist2 < pairs[b].dist2
+	})
+
+	u := newUF(n)
+	components := n
+	for _, p := range pairs {
+		if u.find(p.i) != u.find(p.j) {
+			u.union(p.i, p.j)
+			components--
+			if components == 1 {
+				res = int(in[p.i].x * in[p.j].x)
+				return
+			}
+		}
+	}
+
 	return
 }
 
